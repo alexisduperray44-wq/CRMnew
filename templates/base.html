@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}CRM Maison{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <nav class="topnav">
+    <a class="brand" href="{{ url_for('dashboard') }}">CRM Maison</a>
+    <a href="{{ url_for('dashboard') }}">Cockpit</a>
+    <a href="{{ url_for('societes') }}">Sociétés</a>
+    <a href="{{ url_for('contacts') }}">Contacts</a>
+    <a href="{{ url_for('opportunites') }}">Opportunités</a>
+    <a href="{{ url_for('backlog') }}">Backlog</a>
+    <form method="post" action="{{ url_for('agent_run') }}" class="inline">
+      <button type="submit" class="btn btn-agent">Lancer l'agent</button>
+    </form>
+  </nav>
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

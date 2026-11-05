@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Modifier' if action else 'Nouvelle' }} action — CRM Maison{% endblock %}
+{% block content %}
+<h1>{{ 'Modifier' if action else 'Nouvelle' }} action</h1>
+<form method="post" class="form">
+  <label>Client
+    <select name="societe_id" required>
+      {% for s in societes %}<option value="{{ s.id }}" {{ 'selected' if action and action.societe_id == s.id }}>{{ s.nom }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>Titre *<input type="text" name="titre" required value="{{ action.titre if action else '' }}"></label>
+  <label>Description<textarea name="description" rows="3">{{ action.description if action else '' }}</textarea></label>
+  <div class="form-inline">
+    <label>Priorité
+      <select name="priorite">{% for p in priorites %}<option value="{{ p }}" {{ 'selected' if action and action.priorite == p }}>{{ p }}</option>{% endfor %}</select>
+    </label>
+    {% if action %}
+    <label>Tri
+      <select name="statut_tri">
+        {% for st in ['propose','accepte','modifie','rejete'] %}<option value="{{ st }}" {{ 'selected' if action.statut_tri == st }}>{{ st }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>Statut
+      <select name="statut">
+        {% for st in ['a_faire','en_cours','fait'] %}<option value="{{ st }}" {{ 'selected' if action.statut == st }}>{{ st }}</option>{% endfor %}
+      </select>
+    </label>
+    {% endif %}
+  </div>
+  <div class="form-actions">
+    <button type="submit" class="btn">Enregistrer</button>
+    <a class="btn btn-ghost" href="{{ url_for('backlog') }}">Annuler</a>
+  </div>
+</form>
+{% if action %}
+<form method="post" action="{{ url_for('action_delete', aid=action.id) }}" class="inline"
+      onsubmit="return confirm('Supprimer cette action ?');">
+  <button type="submit" class="btn btn-danger">Supprimer l'action</button>
+</form>
+{% endif %}
+{% endblock %}

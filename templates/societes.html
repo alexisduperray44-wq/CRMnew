@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Sociétés — CRM Maison{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Sociétés</h1>
+  <a class="btn" href="{{ url_for('societe_new') }}">+ Nouvelle société</a>
+</div>
+{% if societes %}
+<table class="table">
+  <thead><tr><th>Nom</th><th>Secteur</th><th>Taille</th><th>Site</th><th>Contacts</th><th></th></tr></thead>
+  <tbody>
+  {% for so in societes %}
+    <tr>
+      <td><a href="{{ url_for('societe_detail', sid=so.id) }}"><strong>{{ so.nom }}</strong></a></td>
+      <td>{{ so.secteur or '—' }}</td>
+      <td>{{ so.taille or '—' }}</td>
+      <td>{% if so.site %}<a href="{{ so.site }}" target="_blank" rel="noopener">{{ so.site }}</a>{% else %}—{% endif %}</td>
+      <td>{{ so.nb_contacts }}</td>
+      <td><a class="btn btn-small" href="{{ url_for('societe_edit', sid=so.id) }}">Modifier</a></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="muted">Aucune société. <a href="{{ url_for('societe_new') }}">Créez la première</a>.</p>
+{% endif %}
+{% endblock %}

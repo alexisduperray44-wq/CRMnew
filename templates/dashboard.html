@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Cockpit — CRM Maison{% endblock %}
+{% block content %}
+<h1>Cockpit commercial</h1>
+{% if request.args.get('agent') is not none %}
+  <p class="flash">L'agent a généré {{ request.args.get('agent') }} nouveau(x) signal/action.</p>
+{% endif %}
+
+<section class="cards">
+  <div class="card"><span class="num">{{ stats.societes }}</span><span class="lbl">Sociétés</span></div>
+  <div class="card"><span class="num">{{ stats.contacts }}</span><span class="lbl">Contacts</span></div>
+  <div class="card"><span class="num">{{ stats.opportunites }}</span><span class="lbl">Opportunités ouvertes</span></div>
+  <div class="card"><span class="num">{{ stats.en_cours }}</span><span class="lbl">Actions en backlog</span></div>
+</section>
+
+<h2>Signaux de l'agent</h2>
+{% if signaux %}
+<table class="table">
+  <thead><tr><th>Gravité</th><th>Type</th><th>Signal</th><th>Client</th><th></th></tr></thead>
+  <tbody>
+  {% for s in signaux %}
+    <tr class="grav-{{ s.gravite }}">
+      <td><span class="badge badge-{{ s.gravite }}">{{ s.gravite }}</span></td>
+      <td>{{ s.type }}</td>
+      <td>{{ s.message }}</td>
+      <td><a href="{{ url_for('societe_detail', sid=s.societe_id) }}">{{ s.societe }}</a></td>
+      <td>
+        <form method="post" action="{{ url_for('signal_traiter', sid=s.id) }}" class="inline">
+          <button class="btn btn-small">Traiter</button>
+        </form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="muted">Aucun signal ouvert. Lancez l'agent pour analyser les clients.</p>
+{% endif %}
+
+<h2>Backlog en cours</h2>
+{% if backlog %}
+<table class="table">
+  <thead><tr><th>Priorité</th><th>Action</th><th>Client</th><th>Statut</th><th></th></tr></thead>
+  <tbody>
+  {% for a in backlog %}
+    <tr>
+      <td><span class="badge prio-{{ a.priorite }}">{{ a.priorite }}</span></td>
+      <td>{{ a.titre }}</td>
+      <td><a href="{{ url_for('societe_detail', sid=a.societe_id) }}">{{ a.societe }}</a></td>
+      <td>{{ a.statut }}</td>
+      <td><a class="btn btn-small" href="{{ url_for('backlog') }}">Voir</a></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="muted">Aucune action en backlog.</p>
+{% endif %}
+{% endblock %}

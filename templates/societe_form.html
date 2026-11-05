@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Modifier' if societe else 'Nouvelle' }} société — CRM Maison{% endblock %}
+{% block content %}
+<h1>{{ 'Modifier' if societe else 'Nouvelle' }} société</h1>
+<form method="post" class="form">
+  <label>Nom *<input type="text" name="nom" required value="{{ societe.nom if societe else '' }}"></label>
+  <label>Secteur<input type="text" name="secteur" value="{{ societe.secteur if societe else '' }}"></label>
+  <label>Taille<input type="text" name="taille" placeholder="ex: PME, ETI, grand compte" value="{{ societe.taille if societe else '' }}"></label>
+  <label>Site web<input type="url" name="site" value="{{ societe.site if societe else '' }}"></label>
+  <label>Note<textarea name="note" rows="4">{{ societe.note if societe else '' }}</textarea></label>
+  <div class="form-actions">
+    <button type="submit" class="btn">Enregistrer</button>
+    <a class="btn btn-ghost" href="{{ url_for('societe_detail', sid=societe.id) if societe else url_for('societes') }}">Annuler</a>
+  </div>
+</form>
+{% if societe %}
+<form method="post" action="{{ url_for('societe_delete', sid=societe.id) }}" class="inline"
+      onsubmit="return confirm('Supprimer cette société et toutes ses données ?');">
+  <button type="submit" class="btn btn-danger">Supprimer la société</button>
+</form>
+{% endif %}
+{% endblock %}

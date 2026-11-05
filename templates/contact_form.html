@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Modifier' if contact else 'Nouveau' }} contact — CRM Maison{% endblock %}
+{% block content %}
+<h1>{{ 'Modifier' if contact else 'Nouveau' }} contact</h1>
+<form method="post" class="form">
+  <label>Prénom *<input type="text" name="prenom" required value="{{ contact.prenom if contact else '' }}"></label>
+  <label>Nom *<input type="text" name="nom" required value="{{ contact.nom if contact else '' }}"></label>
+  <label>Société
+    <select name="societe_id">
+      <option value="">— Aucune —</option>
+      {% for s in societes %}<option value="{{ s.id }}" {{ 'selected' if contact and contact.societe_id == s.id }}>{{ s.nom }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>Poste<input type="text" name="poste" value="{{ contact.poste if contact else '' }}"></label>
+  <label>Email<input type="email" name="email" value="{{ contact.email if contact else '' }}"></label>
+  <label>Téléphone<input type="text" name="telephone" value="{{ contact.telephone if contact else '' }}"></label>
+  <div class="form-actions">
+    <button type="submit" class="btn">Enregistrer</button>
+    <a class="btn btn-ghost" href="{{ url_for('contacts') }}">Annuler</a>
+  </div>
+</form>
+{% if contact %}
+<form method="post" action="{{ url_for('contact_delete', cid=contact.id) }}" class="inline"
+      onsubmit="return confirm('Supprimer ce contact ?');">
+  <button type="submit" class="btn btn-danger">Supprimer le contact</button>
+</form>
+{% endif %}
+{% endblock %}

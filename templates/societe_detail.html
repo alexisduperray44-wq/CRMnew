@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% block title %}{{ societe.nom }} — CRM Maison{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>{{ societe.nom }}</h1>
+    <p class="muted">
+      {{ societe.secteur or 'Secteur non renseigné' }} · {{ societe.taille or '' }}
+      {% if societe.site %} · <a href="{{ societe.site }}" target="_blank" rel="noopener">{{ societe.site }}</a>{% endif %}
+    </p>
+    {% if societe.note %}<p>{{ societe.note }}</p>{% endif %}
+  </div>
+  <a class="btn" href="{{ url_for('societe_edit', sid=societe.id) }}">Modifier</a>
+</div>
+
+<h2>Fiche client 360</h2>
+
+<section class="panel">
+  <h3>Contacts <a class="btn btn-small" href="{{ url_for('contact_new') }}">+ Ajouter</a></h3>
+  {% if data.contacts %}
+  <table class="table">
+    <thead><tr><th>Nom</th><th>Poste</th><th>Email</th><th>Téléphone</th></tr></thead>
+    <tbody>
+    {% for c in data.contacts %}
+      <tr><td><a href="{{ url_for('contact_edit', cid=c.id) }}">{{ c.prenom }} {{ c.nom }}</a></td>
+      <td>{{ c.poste or '—' }}</td><td>{{ c.email or '—' }}</td><td>{{ c.telephone or '—' }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p class="muted">Aucun contact.</p>{% endif %}
+</section>
+
+<section class="panel">
+  <h3>Missions</h3>
+  <form method="post" action="{{ url_for('mission_new', sid=societe.id) }}" class="form-inline">
+    <input type="text" name="titre" placeholder="Titre de la mission *" required>
+    <input type="text" name="consultant" placeholder="Consultant">
+    <select name="statut">{% for st in statuts_mission %}<option {{ 'selected' if st == 'en cours' }}>{{ st }}</option>{% endfor %}</select>
+    <input type="date" name="date_debut" title="Début">
+    <input type="date" name="date_fin" title="Fin">
+    <button class="btn btn-small" type="submit">Ajouter</button>
+  </form>
+  {% if data.missions %}
+  <table class="table">
+    <thead><tr><th>Titre</th><th>Consultant</th><th>Statut</th><th>Début</th><th>Fin</th><th></th></tr></thead>
+    <tbody>
+    {% for m in data.missions %}
+      <tr><td>{{ m.titre }}</td><td>{{ m.consultant or '—' }}</td><td><span class="badge">{{ m.statut }}</span></td>
+      <td>{{ m.date_debut or '—' }}</td><td>{{ m.date_fin or '—' }}</td>
+      <td><form method="post" action="{{ url_for('sous_entite_delete', sid=societe.id, table='missions', rid=m.id) }}" class="inline"><button class="btn btn-small btn-danger">✕</button></form></td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</section>
+
+<section class="panel">
+  <h3>Opportunités</h3>
+  <form method="post" action="{{ url_for('opportunite_new', sid=societe.id) }}" class="form-inline">
+    <input type="text" name="titre" placeholder="Titre *" required>
+    <input type="number" name="montant" placeholder="Montant (€)" step="0.01" min="0">
+    <select name="etape">{% for e in etapes %}<option {{ 'selected' if e == 'prospect' }}>{{ e }}</option>{% endfor %}</select>
+    <input type="number" name="probabilite" min="0" max="100" value="20" title="Probabilité %">
+    <button class="btn btn-small" type="submit">Ajouter</button>
+  </form>
+  {% if data.opportunites %}
+  <table class="table">
+    <thead><tr><th>Titre</th><th>Montant</th><th>Étape</th><th>Proba</th><th></th></tr></thead>
+    <tbody>
+    {% for o in data.opportunites %}
+      <tr><td>{{ o.titre }}</td><td>{{ o.montant or '—' }} €</td>
+      <td>
+        <form method="post" action="{{ url_for('opportunite_etape', sid=societe.id, oid=o.id) }}" class="inline">
+          <select name="etape" onchange="this.form.submit()">
+            {% for e in etapes %}<option value="{{ e }}" {{ 'selected' if e == o.etape }}>{{ e }}</option>{% endfor %}
+          </select>
+        </form>
+      </td>
+      <td>{{ o.probabilite }} %</td>
+      <td><form method="post" action="{{ url_for('sous_entite_delete', sid=societe.id, table='opportunites', rid=o.id) }}" class="inline"><button class="btn btn-small btn-danger">✕</button></form></td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</section>
+
+<section class="panel">
+  <h3>Comptes rendus de RDV</h3>
+  <form method="post" action="{{ url_for('cr_new', sid=societe.id) }}" class="form">
+    <div class="form-inline">
+      <select name="contact_id">
+        <option value="">— Contact —</option>
+        {% for c in data.contacts %}<option value="{{ c.id }}">{{ c.prenom }} {{ c.nom }}</option>{% endfor %}
+      </select>
+      <input type="date" name="date">
+      <select name="type"><option value="note">Note</option><option value="audio">Audio</option><option value="visio">Visio</option></select>
+    </div>
+    <textarea name="contenu" rows="3" required placeholder="Contenu du compte rendu *"></textarea>
+    <button class="btn btn-small" type="submit">Ajouter le CR</button>
+  </form>
+  {% if data.crs %}
+  <ul class="cr-list">
+    {% for cr in data.crs %}
+      <li><strong>{{ cr.date }}</strong> ({{ cr.type }}){% if cr.contact_nom %} — {{ cr.contact_prenom }} {{ cr.contact_nom }}{% endif %} :
+      {{ cr.contenu }}
+      <form method="post" action="{{ url_for('sous_entite_delete', sid=societe.id, table='comptes_rendus', rid=cr.id) }}" class="inline"><button class="btn btn-small btn-danger">✕</button></form></li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</section>
+
+<section class="panel">
+  <h3>Feedbacks</h3>
+  <form method="post" action="{{ url_for('feedback_new', sid=societe.id) }}" class="form-inline">
+    <select name="mission_id">
+      <option value="">— Mission —</option>
+      {% for m in data.missions %}<option value="{{ m.id }}">{{ m.titre }}</option>{% endfor %}
+    </select>
+    <input type="number" name="note" min="1" max="5" placeholder="Note /5">
+    <input type="text" name="commentaire" placeholder="Commentaire">
+    <input type="date" name="date">
+    <button class="btn btn-small" type="submit">Ajouter</button>
+  </form>
+  {% if data.feedbacks %}
+  <ul class="cr-list">
+    {% for f in data.feedbacks %}
+      <li><strong>{{ f.date }}</strong>{% if f.note is not none %} — {{ f.note }}/5{% endif %}{% if f.mission_titre %} ({{ f.mission_titre }}){% endif %} : {{ f.commentaire or '' }}
+      <form method="post" action="{{ url_for('sous_entite_delete', sid=societe.id, table='feedbacks', rid=f.id) }}" class="inline"><button class="btn btn-small btn-danger">✕</button></form></li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</section>
+
+<section class="panel">
+  <h3>Presse & veille</h3>
+  <form method="post" action="{{ url_for('presse_new', sid=societe.id) }}" class="form-inline">
+    <input type="text" name="titre" placeholder="Titre de l'article *" required>
+    <input type="text" name="source" placeholder="Source">
+    <input type="date" name="date">
+    <input type="text" name="resume" placeholder="Résumé">
+    <button class="btn btn-small" type="submit">Ajouter</button>
+  </form>
+  {% if data.presse %}
+  <ul class="cr-list">
+    {% for p in data.presse %}
+      <li><strong>{{ p.date }}</strong> — {{ p.titre }}{% if p.source %} ({{ p.source }}){% endif %}{% if p.resume %} : {{ p.resume }}{% endif %}
+      <form method="post" action="{{ url_for('sous_entite_delete', sid=societe.id, table='presse', rid=p.id) }}" class="inline"><button class="btn btn-small btn-danger">✕</button></form></li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</section>
+
+<section class="panel">
+  <h3>Actions liées</h3>
+  {% if data.actions %}
+  <table class="table">
+    <thead><tr><th>Action</th><th>Priorité</th><th>Tri</th><th>Statut</th></tr></thead>
+    <tbody>
+    {% for a in data.actions %}
+      <tr><td><a href="{{ url_for('action_edit', aid=a.id) }}">{{ a.titre }}</a></td>
+      <td><span class="badge prio-{{ a.priorite }}">{{ a.priorite }}</span></td>
+      <td>{{ a.statut_tri }}</td><td>{{ a.statut }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p class="muted">Aucune action. Lancez l'agent depuis le cockpit.</p>{% endif %}
+</section>
+{% endblock %}

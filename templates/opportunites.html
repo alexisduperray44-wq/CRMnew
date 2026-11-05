@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Opportunités — CRM Maison{% endblock %}
+{% block content %}
+<h1>Pipeline d'opportunités</h1>
+{% if opportunites %}
+<div class="kanban">
+  {% for e in etapes if e not in ('gagne','perdu') %}
+  <div class="col">
+    <h3>{{ e }} <span class="count">{{ opportunites | selectattr('etape', 'equalto', e) | list | length }}</span></h3>
+    {% for o in opportunites if o.etape == e %}
+      <div class="opp-card">
+        <a href="{{ url_for('societe_detail', sid=o.societe_id) }}"><strong>{{ o.titre }}</strong></a>
+        <div class="muted">{{ o.societe }}</div>
+        <div>{{ o.montant or '—' }} € · {{ o.probabilite }} %</div>
+      </div>
+    {% endfor %}
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<p class="muted">Aucune opportunité ouverte.</p>
+{% endif %}
+{% endblock %}
