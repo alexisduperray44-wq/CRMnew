@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Contacts — CRM Maison{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Contacts</h1>
+  <a class="btn" href="{{ url_for('contact_new') }}">+ Nouveau contact</a>
+</div>
+{% if contacts %}
+<table class="table">
+  <thead><tr><th>Nom</th><th>Société</th><th>Poste</th><th>Email</th><th>Téléphone</th><th></th></tr></thead>
+  <tbody>
+  {% for c in contacts %}
+    <tr>
+      <td><a href="{{ url_for('contact_edit', cid=c.id) }}">{{ c.prenom }} {{ c.nom }}</a></td>
+      <td>{% if c.societe %}<a href="{{ url_for('societe_detail', sid=c.societe_id) }}">{{ c.societe }}</a>{% else %}—{% endif %}</td>
+      <td>{{ c.poste or '—' }}</td><td>{{ c.email or '—' }}</td><td>{{ c.telephone or '—' }}</td>
+      <td><a class="btn btn-small" href="{{ url_for('contact_edit', cid=c.id) }}">Modifier</a></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="muted">Aucun contact. <a href="{{ url_for('contact_new') }}">Créez le premier</a>.</p>
+{% endif %}
+{% endblock %}

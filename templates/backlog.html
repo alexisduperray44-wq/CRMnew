@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Backlog — CRM Maison{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Backlog — le cockpit avance ici</h1>
+  <a class="btn" href="{{ url_for('action_new') }}">+ Nouvelle action</a>
+</div>
+
+<section class="panel">
+  <h2>1. Tri <span class="muted small">— accepter, modifier, rejeter</span></h2>
+  {% if a_trier %}
+  <table class="table">
+    <thead><tr><th>Action</th><th>Client</th><th>Priorité</th><th>Origine</th><th>Décision</th></tr></thead>
+    <tbody>
+    {% for a in a_trier %}
+      <tr>
+        <td><strong>{{ a.titre }}</strong>{% if a.description %}<div class="muted small">{{ a.description }}</div>{% endif %}</td>
+        <td><a href="{{ url_for('societe_detail', sid=a.societe_id) }}">{{ a.societe }}</a></td>
+        <td><span class="badge prio-{{ a.priorite }}">{{ a.priorite }}</span></td>
+        <td>{{ a.origine }}</td>
+        <td class="tri-btns">
+          <form method="post" action="{{ url_for('action_tri', aid=a.id) }}" class="inline"><input type="hidden" name="statut_tri" value="accepte"><button class="btn btn-small btn-ok">Accepter</button></form>
+          <a class="btn btn-small" href="{{ url_for('action_edit', aid=a.id) }}">Modifier</a>
+          <form method="post" action="{{ url_for('action_tri', aid=a.id) }}" class="inline"><input type="hidden" name="statut_tri" value="rejete"><button class="btn btn-small btn-danger">Rejeter</button></form>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p class="muted">Rien à trier.</p>{% endif %}
+</section>
+
+<section class="panel">
+  <h2>2. Backlog <span class="muted small">— à faire, en cours, fait</span></h2>
+  <div class="kanban">
+    <div class="col">
+      <h3>À faire</h3>
+      {% for a in a_faire %}
+        <div class="opp-card">
+          <strong>{{ a.titre }}</strong>
+          <div class="muted">{{ a.societe }} · <span class="badge prio-{{ a.priorite }}">{{ a.priorite }}</span></div>
+          <form method="post" action="{{ url_for('action_statut', aid=a.id) }}" class="inline">
+            <input type="hidden" name="statut" value="en_cours"><button class="btn btn-small">Démarrer</button>
+          </form>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="col">
+      <h3>En cours</h3>
+      {% for a in en_cours %}
+        <div class="opp-card">
+          <strong>{{ a.titre }}</strong>
+          <div class="muted">{{ a.societe }}</div>
+          <form method="post" action="{{ url_for('action_statut', aid=a.id) }}" class="inline">
+            <input type="hidden" name="statut" value="fait"><button class="btn btn-small btn-ok">Terminer</button>
+          </form>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="col">
+      <h3>Fait</h3>
+      {% for a in fait %}
+        <div class="opp-card done">
+          <strong>{{ a.titre }}</strong>
+          <div class="muted">{{ a.societe }}</div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
